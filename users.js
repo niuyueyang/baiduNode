@@ -1,3 +1,4 @@
+
 var express = require('express');
 var fs=require('fs');
 var formidable=require('formidable');
@@ -33,8 +34,7 @@ router.post('/uploadPhoto',function(req,res){
     
     let form=new formidable.IncomingForm();
     form.encoding='utf-8';
-    form.keepExtensions = true; // 保留扩展名
-    form.maxFieldsSize = 2 * 1024 * 1024; // 文件大小
+    form.keepExtensions = true; // 保留扩展�?    form.maxFieldsSize = 2 * 1024 * 1024; // 文件大小
     form.uploadDir = 'F:/node/ocr';  // 存储路径
     form.parse(req,function(err,fileds,files){// 解析 formData数据
     	if(err){
@@ -48,18 +48,17 @@ router.post('/uploadPhoto',function(req,res){
     	//fs.writeFile(filename, data, [options], [callback(err)])
 //  	filename      (String)            文件名称
 //
-//		data        (String | Buffer)    将要写入的内容，可以使字符串 或 buffer数据。
+//		data        (String | Buffer)    将要写入的内容，可以使字符串 �?buffer数据�?
 //		
 //		options        (Object)           option数组对象，包含：
 //		
-//		· encoding   (string)            可选值，默认 ‘utf8′，当data使buffer时，该值应该为 ignored。
+//		· encoding   (string)            可选值，默认 ‘utf8′，当data使buffer时，该值应该为 ignored�?
 //		
-//		· mode         (Number)        文件读写权限，默认值 438
+//		· mode         (Number)        文件读写权限，默认�?438
 //		
-//		· flag            (String)            默认值 ‘w'
+//		· flag            (String)            默认�?‘w'
 //		
-//		callback {Function}  回调，传递一个异常参数err。
-		fs.writeFile(result[3],data,function(err){
+//		callback {Function}  回调，传递一个异常参数err�?		fs.writeFile(result[3],data,function(err){
     		if(err){ return console.log(err) }
     		//console.log(imgName)
     		fs.unlink(imgpath,function(){});
