@@ -1,70 +1,63 @@
-var express = require('express');
-var fs=require('fs');
-var formidable=require('formidable');
-var router = express.Router();
-var AipOcrClient = require("baidu-aip-sdk").ocr;
-var url=require('url');
-
-// 设置APPID/AK/SK
-var APP_ID = "10403470";
-var API_KEY = "cf0iE3yKa2u4CFMpDzKwrfAC";
-var SECRET_KEY = "3EQwCWo6Itm0QUCzx6KOoemFxnO4V13k";
-
-var client = new AipOcrClient(APP_ID, API_KEY, SECRET_KEY);
-function getResult(res,imgName){
-		var image = fs.readFileSync(imgName);
-		var base64Img = new Buffer(image).toString('base64');
-		client.generalBasic(base64Img).then(function(result) {
-	    	console.log(JSON.stringify(result));
-	    	res.json(result);
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>ORC����ʶ��</title>
+		<link rel="stylesheet" href="css/style.css" media="screen" type="text/css">
+	</head>
+	<body>
+		<input style="display: none;" id="photoItem" name="img" type="file">
+    	<button style="display: none;">submit</button>
+    	<div class="uploadBtn" id="showDiv">upload</div>
+    	<div class="realBtn">submit</div>
+    	<div class="showResult"></div>
+	</body>
+	<script type="text/javascript" src="js/jquery-2.1.0.js"></script>
+	<script type="text/javascript">
+		$("button").on("click", function (e) {
+	    	e.preventDefault()
+	    	var obj = new FormData();
+	        obj.append("img",$("input").get(0).files[0]);
+		    $.ajax({
+		        url:"http://localhost:3000/users/uploadPhoto",
+		        type:"post",
+		        data:obj,
+		        processData:false, // ����������
+		        contentType : false, // ����������ͷ
+		        cache:false,
+		        success:function(data){
+		            var data = data.words_result;
+		            var content = "";
+		            for(var i=0;i<data.length;i++){
+		            	$(".showResult").append('<p>'+data[i].words+'</p>');
+		            }
+		        }
+		    })
 		});
-	}
-
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
-router.post('/uploadPhoto',function(req,res){
-		// 跨域
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
-    
-    let form=new formidable.IncomingForm();
-    form.encoding='utf-8';
-    form.keepExtensions = true; // 保留扩展�?    form.maxFieldsSize = 2 * 1024 * 1024; // 文件大小
-    form.uploadDir = 'F:/node/ocr';  // 存储路径
-    form.parse(req,function(err,fileds,files){// 解析 formData数据
-    	if(err){
-    		return console.log(err);
-    	}
-    	let imgpath=files.img.path;// 获取文件路径
-    	var name=url.parse(imgpath);
-    	var result=name.pathname.split('/');
-    	let data=fs.readFileSync(imgpath);//同步读取文件，取得buffer
-    	
-    	//fs.writeFile(filename, data, [options], [callback(err)])
-//  	filename      (String)            文件名称
-//
-//		data        (String | Buffer)    将要写入的内容，可以使字符串 �?buffer数据�?
-//		
-//		options        (Object)           option数组对象，包含：
-//		
-//		· encoding   (string)            可选值，默认 ‘utf8′，当data使buffer时，该值应该为 ignored�?
-//		
-//		· mode         (Number)        文件读写权限，默认�?438
-//		
-//		· flag            (String)            默认�?‘w'
-//		
-//		callback {Function}  回调，传递一个异常参数err�?		fs.writeFile(result[3],data,function(err){
-    		if(err){ return console.log(err) }
-    		//console.log(imgName)
-    		fs.unlink(imgpath,function(){});
-    		getResult(res,result[3]);
-    	})
-    	
-    })
-})
-
-module.exports = router;
+		//���upload
+		$("#showDiv").click(function(){
+			$("#photoItem").trigger("click");
+		});
+		//���submit
+		$(".realBtn").click(function(){
+			$("button").trigger("click");
+		});
+        // ץȡ�ϴ�ͼƬ��ת������������ʾͼƬ��dom
+        var img_upload=document.getElementById("photoItem");
+        var img_area=document.getElementById("showDiv");
+        // ���ӹ��ܳ��������¼�
+        img_upload.addEventListener('change',readFile,false);
+        function readFile(){
+            var file=this.files[0];
+            if(!/image\/\w+/.test(file.type)){ 
+                alert("��ȷ���ļ�Ϊͼ������"); 
+                return false; 
+            }
+            var reader=new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload=function(){
+                img_area.innerHTML = '<img style="width: 100%; vertical-align: middle;" src="'+this.result+'" alt=""/>'; 
+            }
+        }
+	</script>
+</html>
